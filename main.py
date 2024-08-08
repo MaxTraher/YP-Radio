@@ -293,7 +293,7 @@ html_content = """
         function changeVideo(videoId, category) {
             currentVideoId = videoId;
             currentCategory = category;
-            document.getElementById('categoryLabel').textContent = 'Current radio.: ' + category;
+            document.getElementById('categoryLabel').textContent = 'Current radio: ' + category;
             toggleDropdown();
             playStream();
         }
