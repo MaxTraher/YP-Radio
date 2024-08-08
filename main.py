@@ -6,7 +6,7 @@ html_content = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Live Stream Audio Player</title>
+    <title>YP-Radio</title>
     <style>
         body {
             display: flex;
@@ -305,7 +305,7 @@ html_content = """
 """
 
 def create_webview_window():
-    webview_instance = webview.create_window('YouTube Live Stream Audio Player', html=html_content, width=700, height=400, resizable=False)
+    webview_instance = webview.create_window('YP-Radio', html=html_content, width=700, height=400, resizable=False)
     webview.start()
 
 if __name__ == "__main__":
