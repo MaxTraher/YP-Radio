@@ -163,7 +163,6 @@ html_content = """
             <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
-            <div class="bar"></div>
         </div>
         <div id="categoryLabel">Current radio: Phonk</div>
         <div id="controls">
@@ -294,10 +293,9 @@ html_content = """
         function changeVideo(videoId, category) {
             currentVideoId = videoId;
             currentCategory = category;
-            stopStream();
-            playStream();
-            document.getElementById('categoryLabel').textContent = `Current radio: ${category}`;
+            document.getElementById('categoryLabel').textContent = 'Current radio: ' + category;
             toggleDropdown();
+            playStream();
         }
     </script>
 </body>
