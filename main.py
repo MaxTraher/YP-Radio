@@ -174,7 +174,7 @@ html_content = """
             <button class="button" id="muteButton" onclick="muteUnmute()">Mute/Unmute</button>
             <div class="volume-control">
                 <label for="volume">Volume:</label>
-                <input type="range" id="volume" min="0" max="100" value="100" onchange="setVolume(this.value)">
+                <input type="range" id="volume" min="0" max="100" value="40" onchange="setVolume(this.value)">
             </div>
         </div>
     </div>
@@ -215,7 +215,9 @@ html_content = """
 
         function onYouTubeIframeAPIReady() {}
 
-        function onPlayerReady(event) {}
+        function onPlayerReady(event) {
+            setVolume(document.getElementById('volume').value);
+        }
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
@@ -275,17 +277,20 @@ html_content = """
         function setVolume(value) {
             if (player) {
                 var volume = value / 100;
-                player.setVolume(volume * 100);
+                player.setVolume(value);
             }
         }
 
-        function setActiveButton(buttonId) {
-            document.querySelectorAll('#controls .button').forEach(button => {
-                if (button.id !== 'muteButton') {
-                    button.classList.remove('active');
-                }
-            });
-            document.getElementById(buttonId).classList.add('active');
+        function changeVideo(videoId, category) {
+            currentVideoId = videoId;
+            currentCategory = category;
+            document.getElementById('categoryLabel').textContent = 'Current radio: ' + category;
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                createPlayer();
+            }
+            document.getElementById('videoSelectDropdown').style.display = 'none';
         }
 
         function toggleDropdown() {
@@ -293,16 +298,15 @@ html_content = """
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
 
-        function changeVideo(videoId, category) {
-            currentVideoId = videoId;
-            currentCategory = category;
-            document.getElementById('categoryLabel').textContent = 'Current radio: ' + category;
-            toggleDropdown();
-            playStream();
+        function setActiveButton(buttonId) {
+            var buttons = document.querySelectorAll('#controls .button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.getElementById(buttonId).classList.add('active');
         }
     </script>
 </body>
 </html>
+
 """
 
 def create_webview_window():
