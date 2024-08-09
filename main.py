@@ -138,7 +138,10 @@ html_content = """
         <button id="videoSelectButton" onclick="toggleDropdown()">Select radio</button>
         <div id="videoSelectDropdown">
             <div onclick="changeVideo('8v_kKMaq5po', 'Phonk')">Phonk</div>
-            <div onclick="changeVideo('Cwq3AFyV044', 'Drum & Bass')">Drum & Bass</div>
+            <div onclick="changeVideo('sR-sbG98ldM', 'DnB / Electro')">DnB / Electro</div>
+            <div onclick="changeVideo('0veWDx5beDs', 'Dark Techno')">Dark Techno</div>
+            <div onclick="changeVideo('jfKfPfyJRdk', 'Lofi hip-hop')">Lofi hip-hop</div>
+            <div onclick="changeVideo('3kgNy-kvFak', 'Retro 80s 90s')">Retro 80s 90s</div>
             <div onclick="changeVideo('akHAQD3o1NA', 'GachiBass')">GachiBass</div>
         </div>
         <div id="player"></div>
