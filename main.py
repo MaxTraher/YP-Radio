@@ -36,7 +36,7 @@ html_content = """
         #videoSelectButton {
             position: absolute;
             top: 5px;
-            right: 8px; /* Смещено влево на 3 пикселя */
+            right: 8px;
             background: #800000;
             border: none;
             color: #FFF;
@@ -47,7 +47,7 @@ html_content = """
         #videoSelectDropdown {
             position: absolute;
             top: 35px;
-            right: 8px; /* Смещено влево на 3 пикселя */
+            right: 8px;
             background: #FFF;
             color: #000;
             padding: 5px;
@@ -112,11 +112,15 @@ html_content = """
             margin: 5px;
             cursor: pointer;
             flex: 1;
+            border-radius: 3px;
         }
         .button.active {
             background: #ee3a1f;
         }
         .button.muted {
+            background: #ee3a1f;
+        }
+        .button.stop-active {
             background: #ee3a1f;
         }
         .volume-control {
@@ -146,9 +150,6 @@ html_content = """
         </div>
         <div id="player"></div>
         <div id="visualizer">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
@@ -201,7 +202,7 @@ html_content = """
                 playerVars: {
                     'autoplay': 1,
                     'controls': 0,
-                    'mute': 0,
+                    'mute': isMuted ? 1 : 0,
                     'loop': 1,
                     'playlist': currentVideoId,
                     'vq': 'small'
@@ -217,15 +218,20 @@ html_content = """
 
         function onPlayerReady(event) {
             setVolume(document.getElementById('volume').value);
+            updateMuteButton();
         }
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 document.getElementById('visualizer').style.visibility = 'visible';
                 startVisualizer();
-            } else {
+                document.getElementById('playButton').classList.add('active');
+                document.getElementById('stopButton').classList.remove('stop-active');
+            } else if (event.data == YT.PlayerState.PAUSED) {
                 document.getElementById('visualizer').style.visibility = 'hidden';
                 stopVisualizer();
+                document.getElementById('playButton').classList.remove('active');
+                document.getElementById('stopButton').classList.add('stop-active');
             }
         }
 
@@ -247,62 +253,101 @@ html_content = """
         function playStream() {
             createPlayer();
             setActiveButton('playButton');
+            document.getElementById('stopButton').classList.remove('stop-active');
         }
 
         function stopStream() {
             if (player) {
                 player.stopVideo();
-                player.destroy();
-                player = null;
             }
             document.getElementById('visualizer').style.visibility = 'hidden';
             stopVisualizer();
-            setActiveButton('stopButton');
+            document.getElementById('stopButton').classList.add('stop-active');
+            document.getElementById('playButton').classList.remove('active');
         }
 
         function muteUnmute() {
+            isMuted = !isMuted;
             if (player) {
-                if (player.isMuted()) {
+                player.mute();
+                if (!isMuted) {
                     player.unMute();
-                    isMuted = false;
-                    document.getElementById('muteButton').classList.remove('muted');
-                } else {
-                    player.mute();
-                    isMuted = true;
-                    document.getElementById('muteButton').classList.add('muted');
                 }
+            }
+            updateMuteButton();
+        }
+
+        function updateMuteButton() {
+            var muteButton = document.getElementById('muteButton');
+            if (isMuted) {
+                muteButton.classList.add('muted');
+                muteButton.textContent = 'Unmute';
+            } else {
+                muteButton.classList.remove('muted');
+                muteButton.textContent = 'Mute';
             }
         }
 
-        function setVolume(value) {
+        function setVolume(volume) {
             if (player) {
-                var volume = value / 100;
-                player.setVolume(value);
+                player.setVolume(volume);
             }
+        }
+
+        function toggleDropdown() {
+            var dropdown = document.getElementById('videoSelectDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
         }
 
         function changeVideo(videoId, category) {
             currentVideoId = videoId;
             currentCategory = category;
-            document.getElementById('categoryLabel').textContent = 'Current radio: ' + category;
+            document.getElementById('categoryLabel').textContent = 'Current radio: ' + currentCategory;
             if (player) {
                 player.loadVideoById(videoId);
             } else {
                 createPlayer();
             }
-            document.getElementById('videoSelectDropdown').style.display = 'none';
-        }
-
-        function toggleDropdown() {
             var dropdown = document.getElementById('videoSelectDropdown');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            dropdown.style.display = 'none'; // Закрыть меню при переключении видео
         }
 
-        function setActiveButton(buttonId) {
-            var buttons = document.querySelectorAll('#controls .button');
-            buttons.forEach(button => button.classList.remove('active'));
-            document.getElementById(buttonId).classList.add('active');
+        function switchCategory(offset) {
+            var categories = [
+                { id: '8v_kKMaq5po', name: 'Phonk' },
+                { id: 'sR-sbG98ldM', name: 'DnB / Electro' },
+                { id: '0veWDx5beDs', name: 'Dark Techno' },
+                { id: 'jfKfPfyJRdk', name: 'Lofi hip-hop' },
+                { id: '3kgNy-kvFak', name: 'Retro 80s 90s' },
+                { id: 'akHAQD3o1NA', name: 'GachiBass' }
+            ];
+            var currentIndex = categories.findIndex(cat => cat.id === currentVideoId);
+            var newIndex = (currentIndex + offset + categories.length) % categories.length;
+            changeVideo(categories[newIndex].id, categories[newIndex].name);
         }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.altKey) {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        var volumeInput = document.getElementById('volume');
+                        volumeInput.value = Math.min(100, parseInt(volumeInput.value) + 10);
+                        setVolume(volumeInput.value);
+                        break;
+                    case 'ArrowDown':
+                        var volumeInput = document.getElementById('volume');
+                        volumeInput.value = Math.max(0, parseInt(volumeInput.value) - 10);
+                        setVolume(volumeInput.value);
+                        break;
+                    case 'ArrowLeft':
+                        switchCategory(-1);
+                        break;
+                    case 'ArrowRight':
+                        switchCategory(1);
+                        break;
+                }
+            }
+        });
     </script>
 </body>
 </html>
@@ -310,7 +355,7 @@ html_content = """
 """
 
 def create_webview_window():
-    webview_instance = webview.create_window('YP-Radio', html=html_content, width=700, height=400, resizable=False)
+    window = webview.create_window('YP-Radio', html=html_content, width=700, height=400, resizable=False)
     webview.start()
 
 if __name__ == "__main__":
