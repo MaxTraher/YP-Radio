@@ -11,6 +11,14 @@ the list will be updated
 
 ## Changelog
 
+### [1.3] - 11-08-2024
+- Minor visual changes.
+- Added hotkeys to control the player (work only when the program window is active)<br>
+Alt+↑ , Alt+↓ - change volume.
+Alt+→ , Alt+← - Switch radio category.
+- Now when you start the player, the volume by default is 40% instead of 100%, as it was before.
+- The "Mute/Unmute" button now shows its current state.
+
 ### [1.2] - 09-08-2024
 - Added new radio categories: 
 Dark Techno, 
